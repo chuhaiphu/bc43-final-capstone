@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Banner {
+  ID       Int    @id @default(autoincrement())
+  IMAGE    String @db.VarChar(255)
+  MOVIE_ID Int
+  Movie    Movie  @relation(fields: [MOVIE_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "banner_movie_id_foreign")
+}
+
+model Cinema {
+  ID                Int              @id @default(autoincrement())
+  NAME              String?          @db.VarChar(255)
+  CINEMA_COMPLEX_ID Int
+  Cinema_Complex    Cinema_Complex   @relation(fields: [CINEMA_COMPLEX_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "cinema_cinema_complex_id_foreign")
+  Movie_Showtime    Movie_Showtime[]
+  Seat              Seat[]
+}
+
+model Cinema_Chain {
+  ID             Int              @id @default(autoincrement())
+  NAME           String           @db.VarChar(255)
+  LOGO           String           @db.VarChar(255)
+  Cinema_Complex Cinema_Complex[]
+
+  @@map("Cinema Chain")
+}
+
+model Cinema_Complex {
+  ID              Int          @id @default(autoincrement())
+  NAME            String       @db.VarChar(255)
+  ADDRESS         String       @db.VarChar(255)
+  CINEMA_CHAIN_ID Int
+  Cinema          Cinema[]
+  Cinema_Chain    Cinema_Chain @relation(fields: [CINEMA_CHAIN_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "cinema complex_cinema_chain_id_foreign")
+
+  @@map("Cinema Complex")
+}
+
+model Movie {
+  ID             Int              @id @default(autoincrement())
+  NAME           String?          @db.VarChar(255)
+  TRAILER        String?          @db.VarChar(255)
+  IMAGE          String?          @db.VarChar(255)
+  DESCRIPTION    String?          @db.VarChar(255)
+  RELEASE_DATE   DateTime?        @db.Date
+  IS_HOT         Boolean
+  IS_SHOWING     Boolean
+  IS_COMING      Boolean
+  Banner         Banner[]
+  Movie_Showtime Movie_Showtime[]
+  Review         Review[]
+}
+
+model Movie_Showtime {
+  ID        Int      @id @default(autoincrement())
+  SHOWTIME  DateTime @db.Date
+  MOVIE_ID  Int
+  CINEMA_ID Int
+  Cinema    Cinema   @relation(fields: [CINEMA_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "movie showtime_cinema_id_foreign")
+  Movie     Movie    @relation(fields: [MOVIE_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "movie showtime_movie_id_foreign")
+  Ticket    Ticket[]
+
+  @@map("Movie Showtime")
+}
+
+model Review {
+  ID       Int     @id @default(autoincrement())
+  CONTENT  String? @db.VarChar(255)
+  RATINGS  Int
+  MOVIE_ID Int
+  Movie    Movie   @relation(fields: [MOVIE_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "review_movie_id_foreign")
+}
+
+model Seat {
+  ID        Int    @id @default(autoincrement())
+  NUMBER    Int
+  NAME      String @db.VarChar(255)
+  CINEMA_ID Int
+  Cinema    Cinema @relation(fields: [CINEMA_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "seat_cinema_id_foreign")
+}
+
+model Ticket {
+  ID                Int            @id @default(autoincrement())
+  PRICE             Int
+  USER_ID           Int
+  MOVIE_SHOWTIME_ID Int
+  Movie_Showtime    Movie_Showtime @relation(fields: [MOVIE_SHOWTIME_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "ticket_movie_showtime_id_foreign")
+  User              User           @relation(fields: [USER_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "ticket_user_id_foreign")
+}
+
+model User {
+  ID            Int      @id @default(autoincrement())
+  FULLNAME      String?  @db.VarChar(255)
+  EMAIL         String   @db.VarChar(255)
+  PASSWORD      String   @db.VarChar(255)
+  PHONE         String?  @db.VarChar(255)
+  ROLE          String   @db.VarChar(255)
+  REFRESH_TOKEN String   @db.VarChar(255)
+  Ticket        Ticket[]
+}
