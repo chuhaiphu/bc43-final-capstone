@@ -1,10 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
 import { PrismaService } from './../../prisma/prisma.service'
-import { LoginDto } from './dtos/login.dto'
+import { LoginDto } from '../_dtos/login.dto'
 import { JwtService } from '@nestjs/jwt'
 import { User } from '@prisma/client'
-import { jwtConstants } from 'src/constants/jwt.constant'
 
 @Injectable()
 export class AuthService {
@@ -42,8 +41,8 @@ export class AuthService {
   }
 
   async login(user: User) {
-    const payload = { email: user.EMAIL, sub: user.ID };
-    const access_token = this.jwtService.sign(payload, { expiresIn: '10s' });
+    const payload = { email: user.EMAIL, sub: user.ID, role: user.ROLE };
+    const access_token = this.jwtService.sign(payload, { expiresIn: '60s' });
     const refresh_token = this.jwtService.sign(payload, { expiresIn: '1w' });
 
     // Save refresh token to the database
@@ -59,8 +58,8 @@ export class AuthService {
   }
 
   async resetToken(user: User) {
-    const payload = { email: user.EMAIL, sub: user.ID };
-    const access_token = this.jwtService.sign(payload, { expiresIn: '10s' });
+    const payload = { email: user.EMAIL, sub: user.ID, role: user.ROLE };
+    const access_token = this.jwtService.sign(payload, { expiresIn: '60s' });
     return {
       access_token
     }
