@@ -13,6 +13,7 @@ export class AuthController {
   @Post('login')
   // ! this Request is not the Request from calling api, it is the request return by credentals.strategy.ts
   login(@Request() req: {user: User}) {
+    // console.log(req);
     // ? req.user is from validate() in credentials.strategy.ts
     return this.authService.login(req.user)
   }

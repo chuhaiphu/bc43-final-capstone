@@ -1,9 +1,10 @@
 import { Transform } from 'class-transformer'
-import { IsString, IsBoolean, IsDateString, IsOptional } from 'class-validator';
+import { IsString, IsBoolean, IsDateString, IsOptional, IsNotEmpty } from 'class-validator';
 
 
 export class MovieDto {
   @IsString()
+  @IsNotEmpty()
   NAME: string
 
   @IsString()

@@ -71,6 +71,7 @@ export class MovieController {
     const releaseDate = new Date(date)
     return this.movieService.findByReleaseDate(releaseDate)
   }
+  // ************************
 
   // ! MOVIE BANNER
   @Get('banner/by-movie-id')
@@ -90,4 +91,43 @@ export class MovieController {
   deleteMovieBanner(@Param('id') id: number) {
     return this.movieService.deleteMovieBanner(id)
   }
+  // ************************
+
+  // ! MOVIE REVIEW
+  @Get('review')
+  findAllReviews() {
+    return this.movieService.findAllReviews()
+  }
+
+  @Get('review/by-pagination')
+  findReviews(
+    @Query('movieId') movieId: number,
+    @Query() paginationDto: PaginationDto
+  ) {
+    return this.movieService.findReviewByPagination(Number(movieId), paginationDto.page, paginationDto.limit)
+  }
+
+  @Post('review/add')
+  addReview(
+    @Body('movieId') movieId: number,
+    @Body('content') content: string,
+    @Body('ratings') ratings: number
+  ) {
+    return this.movieService.addReview(movieId, content, ratings)
+  }
+
+  @Put('review/update/:id')
+  updateReview(
+    @Param('id') id: number,
+    @Body('content') content: string,
+    @Body('ratings') ratings: number
+  ) {
+    return this.movieService.updateReview(Number(id), content, ratings)
+  }
+
+  @Delete('review/delete/:id')
+  deleteReview(@Param('id') id: number) {
+    return this.movieService.deleteReview(Number(id))
+  }
+  
 }

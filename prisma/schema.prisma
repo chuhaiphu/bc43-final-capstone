@@ -96,12 +96,13 @@ model Ticket {
 }
 
 model User {
-  ID            Int      @id @default(autoincrement())
-  FULLNAME      String?  @db.VarChar(255)
-  EMAIL         String   @db.VarChar(255)
-  PASSWORD      String   @db.VarChar(255)
-  PHONE         String?  @db.VarChar(255)
-  ROLE          String   @db.VarChar(255)
-  REFRESH_TOKEN String   @db.VarChar(255)
-  Ticket        Ticket[]
+  ID                 Int      @id @default(autoincrement())
+  FULLNAME           String?  @db.VarChar(255)
+  EMAIL              String   @db.VarChar(255)
+  PASSWORD           String   @db.VarChar(255)
+  PHONE              String?  @db.VarChar(255)
+  ROLE               String   @db.VarChar(255)
+  REFRESH_TOKEN      String   @db.VarChar(255)
+  VERIFICATION_TOKEN String   @db.VarChar(255)
+  Ticket             Ticket[]
 }

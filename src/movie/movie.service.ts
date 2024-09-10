@@ -97,6 +97,7 @@ export class MovieService {
       },
     })
   }
+  // ************************
 
   // ! MOVIE BANNER
   async findMovieBanner(movie_id: number) {
@@ -124,6 +125,78 @@ export class MovieService {
       where: {
         ID: id
       }
+    })
+  }
+  // ************************
+
+  // ! MOVIE REVIEW
+  async findAllReviews() {
+    return this.prisma.review.findMany({
+      orderBy: {
+        ID: 'asc',
+      },
+    })
+  }
+  
+  async findReviewByPagination(movieId: number, page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit
+
+    const [reviews, total] = await Promise.all([
+      this.prisma.review.findMany({
+        where: {
+          MOVIE_ID: movieId
+        },
+        skip,
+        take: limit,
+        orderBy: {
+          ID: 'desc',
+        },
+      }),
+      this.prisma.review.count({
+        where: {
+          MOVIE_ID: movieId
+        }
+      }),
+    ])
+
+    return {
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+      reviews
+    }
+  }
+
+  async addReview(movieId: number, content: string, ratings: number) {
+    return await this.prisma.review.create({
+      data: {
+        MOVIE_ID: movieId,
+        CONTENT: content,
+        RATINGS: ratings
+      }
+    })
+  }
+
+  async updateReview(id: number, content: string, ratings: number) {
+    return await this.prisma.review.update({
+      where: {
+        ID: id,
+      },
+      data: {
+        CONTENT: content,
+        RATINGS: ratings
+      },
+    })
+  }
+
+  async deleteReview(id: number) {
+    return await this.prisma.review.delete({
+      where: {
+        ID: id,
+      },
     })
   }
 }

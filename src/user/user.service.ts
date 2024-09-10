@@ -1,12 +1,19 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { MailerService } from '@nestjs-modules/mailer';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt'
 import { PrismaService } from 'prisma/prisma.service';
 import { SignupDto } from 'src/_dtos/signup.dto';
+import { UserDto } from 'src/_dtos/user.dto';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
-  
+  constructor(
+    private prisma: PrismaService,
+    private mailerService: MailerService,
+    private jwtService: JwtService
+  ) { }
+
   async createUser(signupData: SignupDto) {
     const { email, password, fullname, phone } = signupData;
 
@@ -31,6 +38,7 @@ export class UserService {
         PHONE: phone,
         ROLE: 'USER',
         REFRESH_TOKEN: '',
+        VERIFICATION_TOKEN: '',
       },
     })
 
@@ -38,4 +46,153 @@ export class UserService {
     return result
   }
 
+  async updateUser(id: number, userData: UserDto) {
+    const user = await this.prisma.user.findUnique({ where: { ID: id } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (userData.PASSWORD) {
+      const hashedPassword = await bcrypt.hash(userData.PASSWORD, 10)
+      userData.PASSWORD = hashedPassword
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { ID: id },
+      data: userData,
+    });
+
+    const { PASSWORD, ...result } = updatedUser
+    return result
+  }
+
+  async forgetPassword(email: string) {
+    const user = await this.prisma.user.findFirst({ where: { EMAIL: email } })
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
+
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
+    const verificationToken = this.jwtService.sign(
+      { sub: user.ID, code: verificationCode },
+      { expiresIn: '15m'}
+    )
+
+    await this.prisma.user.update({
+      where: { ID: user.ID },
+      data: {
+        VERIFICATION_TOKEN: verificationToken,
+      },
+    })
+
+    await this.mailerService.sendMail({
+      to: user.EMAIL,
+      subject: 'Password Reset Verification Code',
+      template: './password-reset',
+      context: {
+        fullname: user.FULLNAME,
+        email: user.EMAIL,
+        verificationCode: verificationCode,
+      },
+    })
+
+    return { message: 'Verification code sent to your email' }
+  }
+
+  async validateVerificationToken(email: string, verification_code: string) {
+    const user = await this.prisma.user.findFirst({ where: { EMAIL: email } })
+    if (!user || !user.VERIFICATION_TOKEN) {
+      throw new UnauthorizedException('User not found or no reset requested')
+    }
+  
+    try {
+      const decodedToken = this.jwtService.verify(user.VERIFICATION_TOKEN)
+      if (decodedToken.code !== verification_code) {
+        throw new UnauthorizedException('Invalid verification code')
+      }
+  
+      return { userId: user.ID, email: user.EMAIL }
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired verification token')
+    }
+  }
+  
+  async resetPassword(userId: number, newPassword: string) {
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+    await this.prisma.user.update({
+      where: { ID: userId },
+      data: {
+        PASSWORD: hashedPassword,
+        VERIFICATION_TOKEN: "",
+      },
+    })
+
+    return { message: 'Password reset successfully' }
+  }
+
+  async findAll() {
+    return this.prisma.user.findMany({
+      orderBy: {
+        ID: 'asc',
+      },
+      select: {
+        ID: true,
+        FULLNAME: true,
+        EMAIL: true,
+        PHONE: true,
+        ROLE: true,
+        // Exclude sensitive fields like PASSWORD, REFRESH_TOKEN, and VERIFICATION_TOKEN
+      },
+    })
+  }
+
+  async findByPagination(page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit
+  
+    const [users, total] = await Promise.all([
+      this.prisma.user.findMany({
+        skip,
+        take: limit,
+        orderBy: {
+          ID: 'asc',
+        },
+        select: {
+          ID: true,
+          FULLNAME: true,
+          EMAIL: true,
+          PHONE: true,
+          ROLE: true,
+        },
+      }),
+      this.prisma.user.count(),
+    ])
+  
+    return {
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+      users
+    }
+  }
+
+  async findById(id: number) {
+    return await this.prisma.user.findUnique({
+      where: {
+        ID: id,
+      },
+    })
+  }
+
+  async deleteUser(id: number) {
+    return await this.prisma.user.delete({
+      where: {
+        ID: id,
+      },
+    })
+  }
 }

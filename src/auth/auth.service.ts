@@ -28,7 +28,7 @@ export class AuthService {
   }
 
   async validateRefreshToken(input_refresh_token: string) {
-    const token = input_refresh_token.split(' ')[1];
+    const token = input_refresh_token.split(' ')[1]
     const user = await this.prisma.user.findFirst({
       where: { REFRESH_TOKEN: token },
     })
@@ -41,9 +41,9 @@ export class AuthService {
   }
 
   async login(user: User) {
-    const payload = { email: user.EMAIL, sub: user.ID, role: user.ROLE };
-    const access_token = this.jwtService.sign(payload, { expiresIn: '60s' });
-    const refresh_token = this.jwtService.sign(payload, { expiresIn: '1w' });
+    const payload = { email: user.EMAIL, sub: user.ID, role: user.ROLE }
+    const access_token = this.jwtService.sign(payload, { expiresIn: '5m' })
+    const refresh_token = this.jwtService.sign(payload, { expiresIn: '1w' })
 
     // Save refresh token to the database
     await this.prisma.user.update({
@@ -58,8 +58,8 @@ export class AuthService {
   }
 
   async resetToken(user: User) {
-    const payload = { email: user.EMAIL, sub: user.ID, role: user.ROLE };
-    const access_token = this.jwtService.sign(payload, { expiresIn: '60s' });
+    const payload = { sub: user.ID, email: user.EMAIL, role: user.ROLE }
+    const access_token = this.jwtService.sign(payload, { expiresIn: '5m' })
     return {
       access_token
     }
