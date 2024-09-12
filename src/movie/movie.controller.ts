@@ -4,6 +4,8 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { MovieDto } from 'src/_dtos/movie.dto';
 import { MovieService } from './movie.service';
 import { PaginationDto } from 'src/_dtos/pagination.dto';
+import { MovieShowtimeDto } from 'src/_dtos/movie-showtime.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('movie')
 export class MovieController {
@@ -13,6 +15,7 @@ export class MovieController {
   ) { }
 
   // ! MOVIE MAIN
+  @ApiTags('Movie Main')
   @Post('upload-image')
   @UseInterceptors(FileInterceptor('movie-image'))
   uploadMovieImage(
@@ -22,6 +25,7 @@ export class MovieController {
     return this.cloudinaryService.uploadFile(file, 'final-capstone/movie-images', filename)
   }
 
+  @ApiTags('Movie Banner')
   @Post('upload-banner')
   @UseInterceptors(FileInterceptor('movie-banner'))
   uploadMovieBanner(
@@ -31,41 +35,49 @@ export class MovieController {
     return this.cloudinaryService.uploadFile(file, 'final-capstone/movie-banners', filename)
   }
 
+  @ApiTags('Movie Main')
   @Delete('delete-image')
   deleteImage(@Query('publicId') publicId: string) {
     return this.cloudinaryService.deleteFile(publicId)
   }
 
+  @ApiTags('Movie Main')
   @Post('add')
   addMovie(@Body() movieData: MovieDto) {
     return this.movieService.addMovie(movieData)
   }
 
+  @ApiTags('Movie Main')
   @Put('update/:id')
   updateMovie(@Param('id') id: string, @Body() updateMovieDto: MovieDto) {
     return this.movieService.updateMovie(Number(id), updateMovieDto)
   }
 
+  @ApiTags('Movie Main')
   @Delete('delete/:id')
   deleteMovie(@Param('id') id: string) {
     return this.movieService.deleteMovie(Number(id))
   }
 
+  @ApiTags('Movie Main')
   @Get()
   findAll() {
     return this.movieService.findAll()
   }
 
+  @ApiTags('Movie Main')
   @Get('by-id')
   findById(@Query('id') id: number) {
     return this.movieService.findById(id)
   }
 
+  @ApiTags('Movie Main')
   @Get('by-pagination')
   findByPagination(@Query() paginationDto: PaginationDto) {
     return this.movieService.findByPagination(paginationDto.page, paginationDto.limit)
   }
 
+  @ApiTags('Movie Main')
   @Get('by-release-date')
   findByReleaseDate(@Query('date') date: string) {
     const releaseDate = new Date(date)
@@ -74,11 +86,13 @@ export class MovieController {
   // ************************
 
   // ! MOVIE BANNER
+  @ApiTags('Movie Banner')
   @Get('banner/by-movie-id')
   findMovieBanner(@Query('movie_id') movie_id: number) {
     return this.movieService.findMovieBanner(movie_id)
   }
 
+  @ApiTags('Movie Banner')
   @Post('banner/add')
   addMovieBanner(
     @Body('movie_id') movie_id: number,
@@ -86,7 +100,8 @@ export class MovieController {
   ) {
     return this.movieService.addMovieBanner(movie_id, image)
   }
-
+  
+  @ApiTags('Movie Banner')
   @Delete('banner/delete/:id')
   deleteMovieBanner(@Param('id') id: number) {
     return this.movieService.deleteMovieBanner(id)
@@ -94,11 +109,13 @@ export class MovieController {
   // ************************
 
   // ! MOVIE REVIEW
+  @ApiTags('Movie Review')
   @Get('review')
   findAllReviews() {
     return this.movieService.findAllReviews()
   }
 
+  @ApiTags('Movie Review')
   @Get('review/by-pagination')
   findReviews(
     @Query('movieId') movieId: number,
@@ -107,6 +124,7 @@ export class MovieController {
     return this.movieService.findReviewByPagination(Number(movieId), paginationDto.page, paginationDto.limit)
   }
 
+  @ApiTags('Movie Review')
   @Post('review/add')
   addReview(
     @Body('movieId') movieId: number,
@@ -116,6 +134,7 @@ export class MovieController {
     return this.movieService.addReview(movieId, content, ratings)
   }
 
+  @ApiTags('Movie Review')
   @Put('review/update/:id')
   updateReview(
     @Param('id') id: number,
@@ -125,9 +144,42 @@ export class MovieController {
     return this.movieService.updateReview(Number(id), content, ratings)
   }
 
+  @ApiTags('Movie Review')
   @Delete('review/delete/:id')
   deleteReview(@Param('id') id: number) {
     return this.movieService.deleteReview(Number(id))
   }
-  
+  // ************************
+
+  // ! MOVIE SHOWTIME
+  @ApiTags('Movie Showtime')
+  @Get('movie-showtime')
+  findAllMovieShowtime() {
+    return this.movieService.findAllMovieShowtime()
+  }
+
+  @ApiTags('Movie Showtime')
+  @Get('movie-showtime/by-id')
+  findMovieShowtimeById(@Query('id') id: string) {
+    return this.movieService.findMovieShowtimeById(Number(id))
+  }
+
+  @ApiTags('Movie Showtime')
+  @Post('movie-showtime/add')
+  addMovieShowtime(@Body() movieShowtimeData: MovieShowtimeDto) {
+    return this.movieService.addMovieShowtime(movieShowtimeData)
+  }
+
+  @ApiTags('Movie Showtime')
+  @Put('movie-showtime/:id')
+  updateMovieShowtime(@Param('id') id: string, @Body() movieShowtimeData: MovieShowtimeDto) {
+    return this.movieService.updateMovieShowtime(Number(id), movieShowtimeData)
+  }
+
+  @ApiTags('Movie Showtime')
+  @Delete('movie-showtime/:id')
+  deleteMovieShowtime(@Param('id') id: string) {
+    return this.movieService.deleteMovieShowtime(Number(id))
+  }
+
 }

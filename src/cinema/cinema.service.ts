@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common'
-import { PrismaService } from '../../prisma/prisma.service'
+import { PrismaService } from '../prisma/prisma.service'
 import { CinemaDto } from 'src/_dtos/cinema.dto'
 import { CinemaComplexDto } from 'src/_dtos/cinema-complex.dto'
 import { CinemaChainDto } from 'src/_dtos/cinema-chain.dto'
+import { SeatDto } from 'src/_dtos/seat.dto'
 
 @Injectable()
 export class CinemaService {
@@ -108,4 +109,38 @@ export class CinemaService {
       where: { ID: id },
     })
   }
+  //******************************************************
+
+    // ! SEAT
+    async findAllSeat() {
+      return this.prisma.seat.findMany({
+        include: { Cinema: true }
+      })
+    }
+  
+    async findSeatById(id: number) {
+      return this.prisma.seat.findUnique({
+        where: { ID: id },
+        include: { Cinema: true }
+      })
+    }
+  
+    async addSeat(seatData: SeatDto) {
+      return this.prisma.seat.create({
+        data: seatData,
+      })
+    }
+  
+    async updateSeat(id: number, seatData: SeatDto) {
+      return this.prisma.seat.update({
+        where: { ID: id },
+        data: seatData,
+      })
+    }
+  
+    async deleteSeat(id: number) {
+      return this.prisma.seat.delete({
+        where: { ID: id },
+      })
+    }
 }

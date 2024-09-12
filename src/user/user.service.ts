@@ -2,8 +2,9 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt'
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { SignupDto } from 'src/_dtos/signup.dto';
+import { TicketDto } from 'src/_dtos/ticket.dto';
 import { UserDto } from 'src/_dtos/user.dto';
 
 @Injectable()
@@ -194,5 +195,51 @@ export class UserService {
         ID: id,
       },
     })
+  }
+
+  async findAllTicket() {
+    return this.prisma.ticket.findMany({
+      include: {
+        User: true,
+        Movie_Showtime: true,
+      },
+    })
+  }
+  
+  async findTicketById(id: number) {
+    return this.prisma.ticket.findUnique({
+      where: { ID: id },
+      include: {
+        User: true,
+        Movie_Showtime: true,
+      },
+    })
+  }
+  
+  async createTicket(ticketData: TicketDto) {
+    return this.prisma.ticket.create({
+      data: ticketData,
+      include: {
+        User: true,
+        Movie_Showtime: true,
+      },
+    })
+  }
+  
+  async updateTicket(id: number, ticketData: TicketDto) {
+    return this.prisma.ticket.update({
+      where: { ID: id },
+      data: ticketData,
+      include: {
+        User: true,
+        Movie_Showtime: true,
+      },
+    })
+  }
+  
+  async deleteTicket(id: number) {
+    return this.prisma.ticket.delete({
+      where: { ID: id },
+    });
   }
 }

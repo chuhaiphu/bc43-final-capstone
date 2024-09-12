@@ -9,7 +9,7 @@ import { CinemaModule } from './cinema/cinema.module'
 
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), UserModule, AuthModule, MovieModule, CinemaModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), AuthModule, UserModule, MovieModule, CinemaModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -3,9 +3,8 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common'
 import { GlobalExceptionFilter } from './_filters /global-exception.filter';
 import { ResponseInterceptor } from './ _interceptors/response.interceptor';
-import { RolesGuard } from './_guards/role.guard';
-import { JwtService } from '@nestjs/jwt';
 import { PrismaExceptionFilter } from './_filters /prisma-exception.filter';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 
 async function bootstrap() {
@@ -20,6 +19,17 @@ async function bootstrap() {
       transform: true,
     }),
   )
+
+  const config = new DocumentBuilder()
+    .setTitle('Node43 Final Capstone')
+    .setDescription('Movie Ticket Booking')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .addSecurityRequirements('bearer')
+    .build()
+  const document = SwaggerModule.createDocument(app, config)
+  SwaggerModule.setup('swagger', app, document)
+
   await app.listen(8080)
 }
-bootstrap();
+bootstrap()

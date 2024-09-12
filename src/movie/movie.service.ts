@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { IsNumber } from 'class-validator'
-import { PrismaService } from 'prisma/prisma.service'
+import { PrismaService } from 'src/prisma/prisma.service'
+import { MovieShowtimeDto } from 'src/_dtos/movie-showtime.dto'
 import { MovieDto } from 'src/_dtos/movie.dto'
 
 @Injectable()
@@ -197,6 +198,43 @@ export class MovieService {
       where: {
         ID: id,
       },
+    })
+  }
+  //***********************
+
+  // ! MOVIE SHOWTIME
+  async findAllMovieShowtime() {
+    return this.prisma.movie_Showtime.findMany({
+      include: { Movie: true, Cinema: true },
+      orderBy: { ID: 'asc' },
+    })
+  }
+  
+  async findMovieShowtimeById(id: number) {
+    return this.prisma.movie_Showtime.findUnique({
+      where: { ID: id },
+      include: { Movie: true, Cinema: true },
+    })
+  }
+  
+  async addMovieShowtime(movieShowtimeData: MovieShowtimeDto) {
+    return this.prisma.movie_Showtime.create({
+      data: movieShowtimeData,
+      include: { Movie: true, Cinema: true },
+    })
+  }
+  
+  async updateMovieShowtime(id: number, movieShowtimeData: MovieShowtimeDto) {
+    return this.prisma.movie_Showtime.update({
+      where: { ID: id },
+      data: movieShowtimeData,
+      include: { Movie: true, Cinema: true },
+    })
+  }
+  
+  async deleteMovieShowtime(id: number) {
+    return this.prisma.movie_Showtime.delete({
+      where: { ID: id },
     })
   }
 }
