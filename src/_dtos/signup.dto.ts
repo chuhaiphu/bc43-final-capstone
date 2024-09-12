@@ -21,7 +21,4 @@ export class SignupDto {
   @IsString()
   @IsOptional()
   phone?: string
-
-  @IsEnum(['USER', 'MANAGER', 'ADMIN'])
-  role: string
 }

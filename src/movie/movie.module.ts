@@ -3,9 +3,16 @@ import { MovieService } from './movie.service'
 import { MovieController } from './movie.controller'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module'
+import { PassportModule } from '@nestjs/passport'
+import { JwtModule } from '@nestjs/jwt'
+import { jwtConstants } from 'src/_constants/jwt.constant'
 
 @Module({
-  imports: [CloudinaryModule],
+  imports: [ 
+    PassportModule,
+    JwtModule.register({ secret: jwtConstants.secret }),
+    CloudinaryModule
+  ],
   providers: [MovieService, PrismaService],
   controllers: [MovieController]
 })

@@ -29,7 +29,6 @@ export class UserDto {
   @IsNotEmpty()
   ROLE?: string
 
-  @ApiProperty()
   @IsString()
   @IsOptional()
   VERIFICATION_TOKEN?: string

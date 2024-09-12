@@ -6,9 +6,12 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from 'src/_constants/jwt.constant';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
-  imports: [JwtModule.register({secret: jwtConstants.secret}),
+  imports: [
+    PassportModule,
+    JwtModule.register({ secret: jwtConstants.secret }),
     MailerModule.forRootAsync({
       useFactory: () => ({
         transport: {

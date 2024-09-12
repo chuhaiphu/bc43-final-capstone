@@ -4,7 +4,7 @@ import { AuthGuard } from '@nestjs/passport'
 import { User } from '@prisma/client'
 import { Roles } from 'src/_guards/role.decorator'
 import { RolesGuard } from 'src/_guards/role.guard'
-import { ApiBearerAuth, ApiBody, ApiProperty, ApiTags } from '@nestjs/swagger'
+import { ApiBody, ApiTags } from '@nestjs/swagger'
 import { LoginDto } from 'src/_dtos/login.dto'
 
 @Controller('auth')
@@ -28,10 +28,24 @@ export class AuthController {
     return this.authService.resetToken(req.user)
   }
 
-  @UseGuards(AuthGuard("jwt-token-strat"), RolesGuard)
-  @Roles(["USER"])
-  @Get('profile')
-  getProfile() {
-    return "authenticated"
-  }
+  // @UseGuards(AuthGuard("jwt-token-strat"), RolesGuard)
+  // @Roles(["USER", "MANAGER", "ADMIN"])
+  // @Get('test/user')
+  // checkUser() {
+  //   return "authenticated"
+  // }
+
+  // @UseGuards(AuthGuard("jwt-token-strat"), RolesGuard)
+  // @Roles(["MANAGER"])
+  // @Get('test/manager')
+  // checkManager() {
+  //   return "authenticated"
+  // }
+
+  // @UseGuards(AuthGuard("jwt-token-strat"), RolesGuard)
+  // @Roles(["ADMIN"])
+  // @Get('test/admin')
+  // checkAdmin() {
+  //   return "authenticated"
+  // }
 }

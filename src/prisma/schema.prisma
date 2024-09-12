@@ -79,11 +79,12 @@ model Review {
 }
 
 model Seat {
-  ID        Int    @id @default(autoincrement())
+  ID        Int      @id @default(autoincrement())
   NUMBER    Int
-  NAME      String @db.VarChar(255)
+  NAME      String   @db.VarChar(255)
   CINEMA_ID Int
-  Cinema    Cinema @relation(fields: [CINEMA_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "seat_cinema_id_foreign")
+  Cinema    Cinema   @relation(fields: [CINEMA_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "seat_cinema_id_foreign")
+  Ticket    Ticket[]
 }
 
 model Ticket {
@@ -91,7 +92,9 @@ model Ticket {
   PRICE             Int
   USER_ID           Int
   MOVIE_SHOWTIME_ID Int
+  SEAT_ID           Int
   Movie_Showtime    Movie_Showtime @relation(fields: [MOVIE_SHOWTIME_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "ticket_movie_showtime_id_foreign")
+  Seat              Seat           @relation(fields: [SEAT_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "ticket_seat_id_foreign")
   User              User           @relation(fields: [USER_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "ticket_user_id_foreign")
 }
 
@@ -102,7 +105,7 @@ model User {
   PASSWORD           String   @db.VarChar(255)
   PHONE              String?  @db.VarChar(255)
   ROLE               String   @db.VarChar(255)
-  REFRESH_TOKEN      String   @db.VarChar(255)
-  VERIFICATION_TOKEN String   @db.VarChar(255)
+  REFRESH_TOKEN      String?  @db.VarChar(255)
+  VERIFICATION_TOKEN String?  @db.VarChar(255)
   Ticket             Ticket[]
 }

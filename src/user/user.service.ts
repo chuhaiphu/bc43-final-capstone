@@ -1,11 +1,11 @@
-import { MailerService } from '@nestjs-modules/mailer';
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { MailerService } from '@nestjs-modules/mailer'
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt'
 import * as bcrypt from 'bcrypt'
-import { PrismaService } from 'src/prisma/prisma.service';
-import { SignupDto } from 'src/_dtos/signup.dto';
-import { TicketDto } from 'src/_dtos/ticket.dto';
-import { UserDto } from 'src/_dtos/user.dto';
+import { PrismaService } from 'src/prisma/prisma.service'
+import { SignupDto } from 'src/_dtos/signup.dto'
+import { TicketDto } from 'src/_dtos/ticket.dto'
+import { UserDto } from 'src/_dtos/user.dto'
 
 @Injectable()
 export class UserService {
@@ -15,6 +15,7 @@ export class UserService {
     private jwtService: JwtService
   ) { }
 
+  // ! USER
   async createUser(signupData: SignupDto) {
     const { email, password, fullname, phone } = signupData;
 
@@ -47,8 +48,40 @@ export class UserService {
     return result
   }
 
+  async createManager(userDto: UserDto) {
+    const { EMAIL, PASSWORD, FULLNAME, PHONE } = userDto
+
+    // Check if email is in use
+    const emailInUse = await this.prisma.user.findFirst({
+      where: { EMAIL },
+    })
+
+    if (emailInUse) {
+      throw new BadRequestException('Email already in use')
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(PASSWORD, 10)
+
+    // Create user document and save in PostgreSQL using Prisma
+    const newManager = await this.prisma.user.create({
+      data: {
+        EMAIL,
+        PASSWORD: hashedPassword,
+        FULLNAME,
+        PHONE,
+        ROLE: 'MANAGER',
+        REFRESH_TOKEN: '',
+        VERIFICATION_TOKEN: '',
+      },
+    })
+
+    const { PASSWORD: _, ...result } = newManager
+    return result
+  }
+  
   async updateUser(id: number, userData: UserDto) {
-    const user = await this.prisma.user.findUnique({ where: { ID: id } });
+    const user = await this.prisma.user.findUnique({ where: { ID: id } })
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -189,19 +222,40 @@ export class UserService {
     })
   }
 
-  async deleteUser(id: number) {
+  async deleteUser(id: number, currentUserRole: string, currentUserId: number) {
+    const userToDelete = await this.prisma.user.findUnique({ where: { ID: id } })
+  
+    if (!userToDelete) {
+      throw new NotFoundException('User not found')
+    }
+  
+    if (currentUserRole === 'USER' && currentUserId !== id) {
+      throw new UnauthorizedException('Users can only delete their own account')
+    }
+  
+    if (currentUserRole === 'MANAGER') {
+      if (userToDelete.ROLE === 'ADMIN' || userToDelete.ROLE === 'MANAGER') {
+        throw new UnauthorizedException('Managers can only delete user accounts')
+      }
+    }
+  
+    if (currentUserRole === 'ADMIN' && userToDelete.ROLE === 'ADMIN' && currentUserId !== id) {
+      throw new UnauthorizedException('Admins can only delete their own admin account')
+    }
+  
     return await this.prisma.user.delete({
-      where: {
-        ID: id,
-      },
+      where: { ID: id },
     })
   }
+  //********************************************************** */
 
+  // ! TICKET
   async findAllTicket() {
     return this.prisma.ticket.findMany({
       include: {
         User: true,
         Movie_Showtime: true,
+        Seat: true,
       },
     })
   }
@@ -212,10 +266,33 @@ export class UserService {
       include: {
         User: true,
         Movie_Showtime: true,
+        Seat: true,
+      },
+    })
+  }
+
+  async findTicketByUserId(userId: number) {
+    return this.prisma.ticket.findMany({
+      where: { USER_ID: userId },
+      include: {
+        User: true,
+        Movie_Showtime: true,
+        Seat: true,
       },
     })
   }
   
+  async findTicketBySeatId(seatId: number) {
+    return this.prisma.ticket.findMany({
+      where: { SEAT_ID: seatId },
+      include: {
+        User: true,
+        Movie_Showtime: true,
+        Seat: true,
+      },
+    })
+  }
+
   async createTicket(ticketData: TicketDto) {
     return this.prisma.ticket.create({
       data: ticketData,
@@ -240,6 +317,6 @@ export class UserService {
   async deleteTicket(id: number) {
     return this.prisma.ticket.delete({
       where: { ID: id },
-    });
+    })
   }
 }

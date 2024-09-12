@@ -12,6 +12,7 @@ export class RolesGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ])
+
     if (!roles) {
       return true
     }
@@ -22,7 +23,7 @@ export class RolesGuard implements CanActivate {
 
     const token = authHeader.split(' ')[1]
     const userRole = this.jwtService.decode(token).role
-
+    
     return roles.includes(userRole)
   }
 } 
