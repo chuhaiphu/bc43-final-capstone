@@ -5,13 +5,15 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from 'src/_constants/jwt.constant';
 import { PassportModule } from '@nestjs/passport';
+import { JwtTokenStrategy } from 'src/_strategies/jwt.access-token.strategy';
+import { jwtConstants } from 'src/_constants/jwt.constant';
 
 @Module({
   imports: [
     PassportModule,
-    JwtModule.register({ secret: jwtConstants.secret }),
+    // must include {secret:} here, cannot left empty like in auth.module.ts because the controller must have the secret for the AuthGuard
+    JwtModule.register({secret: jwtConstants.access_token_secret}),
     MailerModule.forRootAsync({
       useFactory: () => ({
         transport: {
@@ -37,6 +39,6 @@ import { PassportModule } from '@nestjs/passport';
     }),
   ],
   controllers: [UserController],
-  providers: [UserService, PrismaService]
+  providers: [UserService, JwtTokenStrategy, PrismaService]
 })
 export class UserModule { }

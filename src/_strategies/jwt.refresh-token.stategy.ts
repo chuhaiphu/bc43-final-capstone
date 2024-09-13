@@ -12,8 +12,7 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(Strategy, "jwt-ref
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: jwtConstants.secret,
-      //* if passReqToCallback: true, Passport.js automatically passes the request object as the first parameter to the validate method. 
+      secretOrKey: jwtConstants.refresh_token_secret,
       passReqToCallback: true,
     })
   }

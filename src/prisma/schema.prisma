@@ -90,12 +90,12 @@ model Seat {
 model Ticket {
   ID                Int            @id @default(autoincrement())
   PRICE             Int
-  USER_ID           Int
+  USER_ID           Int?
   MOVIE_SHOWTIME_ID Int
   SEAT_ID           Int
   Movie_Showtime    Movie_Showtime @relation(fields: [MOVIE_SHOWTIME_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "ticket_movie_showtime_id_foreign")
   Seat              Seat           @relation(fields: [SEAT_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "ticket_seat_id_foreign")
-  User              User           @relation(fields: [USER_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "ticket_user_id_foreign")
+  User              User?          @relation(fields: [USER_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "ticket_user_id_foreign")
 }
 
 model User {

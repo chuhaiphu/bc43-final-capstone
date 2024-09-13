@@ -9,7 +9,7 @@ import { jwtConstants } from 'src/_constants/jwt.constant'
 @Module({
   imports: [
     PassportModule,
-    JwtModule.register({ secret: jwtConstants.secret })
+    JwtModule.register({})
   ],
   providers: [CinemaService, PrismaService],
   controllers: [CinemaController]

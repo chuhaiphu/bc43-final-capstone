@@ -10,7 +10,7 @@ import { jwtConstants } from 'src/_constants/jwt.constant'
 @Module({
   imports: [ 
     PassportModule,
-    JwtModule.register({ secret: jwtConstants.secret }),
+    JwtModule.register({}),
     CloudinaryModule
   ],
   providers: [MovieService, PrismaService],

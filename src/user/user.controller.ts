@@ -7,6 +7,7 @@ import { TicketDto } from 'src/_dtos/ticket.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { RolesGuard } from 'src/_guards/role.guard';
 import { Roles } from 'src/_guards/role.decorator';
+import { ResetPasswordDto } from 'src/_dtos/reset-password.dto';
 
 @Controller('user')
 export class UserController {
@@ -45,10 +46,9 @@ export class UserController {
   @ApiTags('User Main')
   @Post('reset-password')
   async resetPassword(
-    @Body('email') email: string,
-    @Body('verification_code') verification_code: string,
-    @Body('newPassword') newPassword: string,
+    @Body() resetPasswordDto: ResetPasswordDto,
   ) {
+    const { email, verification_code, newPassword } = resetPasswordDto
     const user = await this.userService.validateVerificationToken(email, verification_code)
     return this.userService.resetPassword(user.userId, newPassword)
   }
@@ -115,9 +115,9 @@ export class UserController {
     return this.userService.findTicketByUserId(req.user.userId)
   }
 
-
   @ApiTags('Ticket')
-  @UseGuards(AuthGuard('jwt-token-strat'))
+  @UseGuards(AuthGuard('jwt-token-strat'), RolesGuard)
+  @Roles(["MANAGER"])
   @Post('ticket/add')
   createTicket(@Body() ticketData: TicketDto) {
     return this.userService.createTicket(ticketData)
@@ -125,9 +125,12 @@ export class UserController {
 
   @ApiTags('Ticket')
   @UseGuards(AuthGuard('jwt-token-strat'))
-  @Put('ticket/:id')
-  updateTicket(@Param('id') id: string, @Body() ticketData: TicketDto) {
-    return this.userService.updateTicket(Number(id), ticketData)
+  @Post('ticket/book')
+  bookTicket(
+    @Request() req: { user: { userId: any, email: any, role: any } },
+    @Query('ticketId') ticketId: string,
+  ) {
+    return this.userService.bookTicket(req.user.userId, Number(ticketId))
   }
 
   @ApiTags('Ticket')

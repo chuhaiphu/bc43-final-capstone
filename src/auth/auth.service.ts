@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, UnauthorizedException } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
 import { PrismaService } from '../prisma/prisma.service'
 import { LoginDto } from '../_dtos/login.dto'
 import { JwtService } from '@nestjs/jwt'
 import { User } from '@prisma/client'
+import { jwtConstants } from 'src/_constants/jwt.constant'
 
 @Injectable()
 export class AuthService {
@@ -17,6 +18,9 @@ export class AuthService {
     const user = await this.prisma.user.findFirst({
       where: { EMAIL: email },
     })
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials')
+    }
 
     const isPasswordMatch = await bcrypt.compare(password, user.PASSWORD)
     if (isPasswordMatch) {
@@ -42,8 +46,8 @@ export class AuthService {
 
   async login(user: User) {
     const payload = { email: user.EMAIL, sub: user.ID, role: user.ROLE }
-    const access_token = this.jwtService.sign(payload, { expiresIn: '5m' })
-    const refresh_token = this.jwtService.sign(payload, { expiresIn: '1w' })
+    const access_token = this.jwtService.sign(payload, { expiresIn: '5m' , secret: jwtConstants.access_token_secret})
+    const refresh_token = this.jwtService.sign(payload, { expiresIn: '1w', secret: jwtConstants.refresh_token_secret})
 
     // Save refresh token to the database
     await this.prisma.user.update({
@@ -59,7 +63,7 @@ export class AuthService {
 
   async resetToken(user: User) {
     const payload = { sub: user.ID, email: user.EMAIL, role: user.ROLE }
-    const access_token = this.jwtService.sign(payload, { expiresIn: '5m' })
+    const access_token = this.jwtService.sign(payload, { expiresIn: '5m' , secret: jwtConstants.access_token_secret})
     return {
       access_token
     }

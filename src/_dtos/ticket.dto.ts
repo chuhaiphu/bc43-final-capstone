@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNumber, IsNotEmpty } from 'class-validator'
+import { IsNumber, IsNotEmpty, IsOptional } from 'class-validator'
 
 export class TicketDto {
   @ApiProperty()
@@ -10,12 +10,12 @@ export class TicketDto {
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
-  USER_ID: number
+  MOVIE_SHOWTIME_ID: number
 
-  @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
-  MOVIE_SHOWTIME_ID: number
+  @IsOptional()
+  USER_ID: number
 
   @ApiProperty()
   @IsNumber()

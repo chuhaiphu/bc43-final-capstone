@@ -2,10 +2,11 @@ import { MailerService } from '@nestjs-modules/mailer'
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import * as bcrypt from 'bcrypt'
-import { PrismaService } from 'src/prisma/prisma.service'
+import { jwtConstants } from 'src/_constants/jwt.constant'
 import { SignupDto } from 'src/_dtos/signup.dto'
 import { TicketDto } from 'src/_dtos/ticket.dto'
 import { UserDto } from 'src/_dtos/user.dto'
+import { PrismaService } from 'src/prisma/prisma.service'
 
 @Injectable()
 export class UserService {
@@ -44,7 +45,7 @@ export class UserService {
       },
     })
 
-    const { PASSWORD, ...result } = newUser
+    const { PASSWORD, REFRESH_TOKEN, VERIFICATION_TOKEN, ...result } = newUser
     return result
   }
 
@@ -76,7 +77,7 @@ export class UserService {
       },
     })
 
-    const { PASSWORD: _, ...result } = newManager
+    const { PASSWORD: _, VERIFICATION_TOKEN, REFRESH_TOKEN, ...result } = newManager
     return result
   }
   
@@ -95,10 +96,16 @@ export class UserService {
     const updatedUser = await this.prisma.user.update({
       where: { ID: id },
       data: userData,
-    });
+      select: {
+        ID: true,
+        EMAIL: true,
+        FULLNAME: true,
+        PHONE: true,
+        ROLE: true
+      }
+    })
 
-    const { PASSWORD, ...result } = updatedUser
-    return result
+    return updatedUser
   }
 
   async forgetPassword(email: string) {
@@ -110,7 +117,7 @@ export class UserService {
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
     const verificationToken = this.jwtService.sign(
       { sub: user.ID, code: verificationCode },
-      { expiresIn: '15m'}
+      { expiresIn: '15m' }
     )
 
     await this.prisma.user.update({
@@ -161,6 +168,13 @@ export class UserService {
         PASSWORD: hashedPassword,
         VERIFICATION_TOKEN: "",
       },
+      select: {
+        ID: true,
+        FULLNAME: true,
+        EMAIL: true,
+        PHONE: true,
+        ROLE: true,
+      }
     })
 
     return { message: 'Password reset successfully' }
@@ -219,12 +233,18 @@ export class UserService {
       where: {
         ID: id,
       },
+      select: {
+        ID: true,
+        FULLNAME: true,
+        EMAIL: true,
+        PHONE: true,
+        ROLE: true,
+      }
     })
   }
 
-  async deleteUser(id: number, currentUserRole: string, currentUserId: number) {
+  async deleteUser(id: number, currentUserId: number, currentUserRole: string) {
     const userToDelete = await this.prisma.user.findUnique({ where: { ID: id } })
-  
     if (!userToDelete) {
       throw new NotFoundException('User not found')
     }
@@ -232,7 +252,7 @@ export class UserService {
     if (currentUserRole === 'USER' && currentUserId !== id) {
       throw new UnauthorizedException('Users can only delete their own account')
     }
-  
+
     if (currentUserRole === 'MANAGER') {
       if (userToDelete.ROLE === 'ADMIN' || userToDelete.ROLE === 'MANAGER') {
         throw new UnauthorizedException('Managers can only delete user accounts')
@@ -245,6 +265,13 @@ export class UserService {
   
     return await this.prisma.user.delete({
       where: { ID: id },
+      select: {
+        ID: true,
+        FULLNAME: true,
+        EMAIL: true,
+        PHONE: true,
+        ROLE: true,
+      }
     })
   }
   //********************************************************** */
@@ -302,14 +329,20 @@ export class UserService {
       },
     })
   }
+
+  async bookTicket(userId: number, ticketId: number) {
+    const ticket = await this.prisma.ticket.findUnique({
+      where: { ID: ticketId },
+    })
   
-  async updateTicket(id: number, ticketData: TicketDto) {
+    if (ticket.USER_ID !== null) {
+      throw new BadRequestException('This ticket is already booked')
+    }
+  
     return this.prisma.ticket.update({
-      where: { ID: id },
-      data: ticketData,
-      include: {
-        User: true,
-        Movie_Showtime: true,
+      where: { ID: ticketId },
+      data: {
+        USER_ID: userId,
       },
     })
   }
