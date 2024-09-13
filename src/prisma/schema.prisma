@@ -81,7 +81,7 @@ model Review {
 model Seat {
   ID        Int      @id @default(autoincrement())
   NUMBER    Int
-  NAME      String   @db.VarChar(255)
+  NAME      String?  @db.VarChar(255)
   CINEMA_ID Int
   Cinema    Cinema   @relation(fields: [CINEMA_ID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "seat_cinema_id_foreign")
   Ticket    Ticket[]
