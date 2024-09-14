@@ -14,16 +14,23 @@
   This is a backend application for a movie ticket booking platform. It is built using NestJS framework and Prisma ORM. It is a RESTful API that provides endpoints for managing users,  movies, cinemas, showtimes, and ticket bookings.
 
 ## Main Features
+
 - **Authentication:** Login, Register, Forgot Password, Reset Password using JWT and Passport library.
+
 - **Authorization:** Role-based API access control. Three roles: Admin, Manager and User with different permissions.
+
   * Role Admin: Full access to all features, can add Manager
-  <br>
-  To login with admin, use email: admin@example.com, password: admin
+
+  To login with admin, use { "email": "admin@example.com", "password": "admin" }
+
   * Role Manager: Manage movies, cinemas, and showtimes
+
   * Role User: Book tickets and view personal information
+
 - **CRUD:** Create, Read, Update, Delete movies, cinemas, showtimes and ticket bookings.
+
 - **3rd party:** Cloudinary for image storage. Prisma for Database ORM.
- <br>
+
  For further information, after starting the project, please visit <a href="[project-url]/swagger" target="_blank"><strong>[project-url]/swagger</strong></a> for API documentation.
 
 ## Getting Started
