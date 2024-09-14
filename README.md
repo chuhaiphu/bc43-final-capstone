@@ -11,7 +11,7 @@
   </div>
   
   ## Description
-  This is a backend application for a movie ticket booking platform. It is built using NestJS framework and Prisma ORM. It is a RESTful API that provides endpoints for managing users,  movies, cinemas, showtimes, and ticket bookings.
+  This is a backend application for a movie ticket booking platform. It is built using NestJS framework and Prisma ORM. It is a RESTful API that provides endpoints for managing users,  movies, reviews, cinemas, showtimes, and ticket bookings.
 
 ## Main Features
 
@@ -29,7 +29,7 @@
 
 - **CRUD:** Create, Read, Update, Delete movies, cinemas, showtimes and ticket bookings.
 
-- **3rd party:** Cloudinary for image storage. Prisma for Database ORM.
+- **3rd party:** Cloudinary for image storage. Prisma for Database ORM. Nodemailer with any mail service.
 
  For further information, after starting the project, please visit <a href="[project-url]/swagger" target="_blank"><strong>[project-url]/swagger</strong></a> for API documentation.
 
