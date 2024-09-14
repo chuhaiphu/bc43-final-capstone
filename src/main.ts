@@ -5,6 +5,7 @@ import { GlobalExceptionFilter } from './_filters /global-exception.filter';
 import { ResponseInterceptor } from './ _interceptors/response.interceptor';
 import { PrismaExceptionFilter } from './_filters /prisma-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { UserService } from './user/user.service';
 
 
 async function bootstrap() {
@@ -29,6 +30,9 @@ async function bootstrap() {
     .build()
   const document = SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('swagger', app, document)
+
+  const userService = app.get(UserService)
+  await userService.createAdminIfNotExists()
 
   await app.listen(8080)
 }

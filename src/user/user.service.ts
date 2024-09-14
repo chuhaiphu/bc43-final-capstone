@@ -16,6 +16,27 @@ export class UserService {
     private jwtService: JwtService
   ) { }
 
+  async createAdminIfNotExists() {
+    const adminEmail = 'admin@example.com';
+    const existingAdmin = await this.prisma.user.findFirst({
+      where: { EMAIL: adminEmail, ROLE: 'ADMIN' },
+    })
+  
+    if (!existingAdmin) {
+      const hashedPassword = await bcrypt.hash('admin', 10)
+      await this.prisma.user.create({
+        data: {
+          EMAIL: adminEmail,
+          PASSWORD: hashedPassword,
+          FULLNAME: 'Admin',
+          ROLE: 'ADMIN',
+          REFRESH_TOKEN: '',
+          VERIFICATION_TOKEN: '',
+        },
+      })
+    }
+  }
+
   // ! USER
   async createUser(signupData: SignupDto) {
     const { email, password, fullname, phone } = signupData;
