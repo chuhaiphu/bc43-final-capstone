@@ -5,10 +5,12 @@ import { MovieDto } from 'src/_dtos/movie.dto';
 import { MovieService } from './movie.service';
 import { PaginationDto } from 'src/_dtos/pagination.dto';
 import { MovieShowtimeDto } from 'src/_dtos/movie-showtime.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { RolesGuard } from 'src/_guards/role.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { Roles } from 'src/_guards/role.decorator';
+import { ReviewDto } from 'src/_dtos/review.dto';
+import { BannerDto } from 'src/_dtos/banner.dto';
 
 @Controller('movie')
 export class MovieController {
@@ -19,6 +21,21 @@ export class MovieController {
 
   // ! MOVIE MAIN
   @ApiTags('Movie Main')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        'movie-image': {
+          type: 'string',
+          format: 'binary',
+        },
+        filename: {
+          type: 'string',
+        },
+      },
+    },
+  })
   @UseGuards(AuthGuard('jwt-token-strat'), RolesGuard)
   @Roles(["MANAGER"])
   @Post('upload-image')
@@ -31,6 +48,21 @@ export class MovieController {
   }
 
   @ApiTags('Movie Banner')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        'movie-banner': {
+          type: 'string',
+          format: 'binary',
+        },
+        filename: {
+          type: 'string',
+        },
+      },
+    },
+  })
   @UseGuards(AuthGuard('jwt-token-strat'), RolesGuard)
   @Roles(["MANAGER"])
   @Post('upload-banner')
@@ -111,11 +143,8 @@ export class MovieController {
   @UseGuards(AuthGuard('jwt-token-strat'), RolesGuard)
   @Roles(["MANAGER"])
   @Post('banner/add')
-  addMovieBanner(
-    @Body('movie_id') movie_id: number,
-    @Body('image') image: string
-  ) {
-    return this.movieService.addMovieBanner(movie_id, image)
+  addMovieBanner(@Body() bannerDto: BannerDto) {
+    return this.movieService.addMovieBanner(bannerDto.MOVIE_ID, bannerDto.IMAGE)
   }
   
   @ApiTags('Movie Banner')
@@ -146,24 +175,16 @@ export class MovieController {
   @ApiTags('Movie Review')
   @UseGuards(AuthGuard('jwt-token-strat'))
   @Post('review/add')
-  addReview(
-    @Body('movieId') movieId: number,
-    @Body('content') content: string,
-    @Body('ratings') ratings: number
-  ) {
-    return this.movieService.addReview(movieId, content, ratings)
+  addReview(@Body() reviewDto: ReviewDto) {
+    return this.movieService.addReview(reviewDto.MOVIE_ID, reviewDto.CONTENT, reviewDto.RATINGS)
   }
 
   @ApiTags('Movie Review')
   @UseGuards(AuthGuard('jwt-token-strat'), RolesGuard)
   @Roles(["MANAGER"])
   @Put('review/update/:id')
-  updateReview(
-    @Param('id') id: number,
-    @Body('content') content: string,
-    @Body('ratings') ratings: number
-  ) {
-    return this.movieService.updateReview(Number(id), content, ratings)
+  updateReview(@Param('id') id: string, @Body() reviewDto: ReviewDto) {
+    return this.movieService.updateReview(Number(id), reviewDto.CONTENT, reviewDto.RATINGS)
   }
 
   @ApiTags('Movie Review')

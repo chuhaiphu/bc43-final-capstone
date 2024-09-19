@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { IsNumber } from 'class-validator'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { MovieShowtimeDto } from 'src/_dtos/movie-showtime.dto'
@@ -83,10 +83,16 @@ export class MovieService {
   }
   
   async updateMovie(id: number, movieData: MovieDto) {
+    const existingMovie = await this.prisma.movie.findUnique({
+      where: { ID: id },
+    })
+  
+    if (!existingMovie) {
+      throw new NotFoundException(`Movie with ID ${id} not found`);
+    }
+  
     return await this.prisma.movie.update({
-      where: {
-        ID: id,
-      },
+      where: { ID: id },
       data: movieData,
     })
   }
@@ -113,6 +119,14 @@ export class MovieService {
   }
 
   async addMovieBanner(movie_id: number, image: string) {
+    const movie = await this.prisma.movie.findUnique({
+      where: { ID: movie_id },
+    })
+  
+    if (!movie) {
+      throw new NotFoundException(`Movie with ID ${movie_id} not found`);
+    }
+  
     return await this.prisma.banner.create({
       data: {
         MOVIE_ID: movie_id,
@@ -172,6 +186,14 @@ export class MovieService {
   }
 
   async addReview(movieId: number, content: string, ratings: number) {
+    const movie = await this.prisma.movie.findUnique({
+      where: { ID: movieId },
+    })
+  
+    if (!movie) {
+      throw new NotFoundException(`Movie with ID ${movieId} not found`);
+    }
+  
     return await this.prisma.review.create({
       data: {
         MOVIE_ID: movieId,
@@ -182,10 +204,16 @@ export class MovieService {
   }
 
   async updateReview(id: number, content: string, ratings: number) {
+    const existingReview = await this.prisma.review.findUnique({
+      where: { ID: id },
+    })
+  
+    if (!existingReview) {
+      throw new NotFoundException(`Review with ID ${id} not found`);
+    }
+  
     return await this.prisma.review.update({
-      where: {
-        ID: id,
-      },
+      where: { ID: id },
       data: {
         CONTENT: content,
         RATINGS: ratings
@@ -218,6 +246,22 @@ export class MovieService {
   }
   
   async addMovieShowtime(movieShowtimeData: MovieShowtimeDto) {
+    const movie = await this.prisma.movie.findUnique({
+      where: { ID: movieShowtimeData.MOVIE_ID },
+    })
+  
+    if (!movie) {
+      throw new NotFoundException(`Movie with ID ${movieShowtimeData.MOVIE_ID} not found`);
+    }
+  
+    const cinema = await this.prisma.cinema.findUnique({
+      where: { ID: movieShowtimeData.CINEMA_ID },
+    });
+  
+    if (!cinema) {
+      throw new NotFoundException(`Cinema with ID ${movieShowtimeData.CINEMA_ID} not found`);
+    }
+  
     return this.prisma.movie_Showtime.create({
       data: movieShowtimeData,
       include: { Movie: true, Cinema: true },
@@ -225,12 +269,41 @@ export class MovieService {
   }
   
   async updateMovieShowtime(id: number, movieShowtimeData: MovieShowtimeDto) {
+    const existingShowtime = await this.prisma.movie_Showtime.findUnique({
+      where: { ID: id },
+    })
+  
+    if (!existingShowtime) {
+      throw new NotFoundException(`Movie Showtime with ID ${id} not found`);
+    }
+  
+    if (movieShowtimeData.MOVIE_ID) {
+      const movie = await this.prisma.movie.findUnique({
+        where: { ID: movieShowtimeData.MOVIE_ID },
+      })
+  
+      if (!movie) {
+        throw new NotFoundException(`Movie with ID ${movieShowtimeData.MOVIE_ID} not found`);
+      }
+    }
+  
+    if (movieShowtimeData.CINEMA_ID) {
+      const cinema = await this.prisma.cinema.findUnique({
+        where: { ID: movieShowtimeData.CINEMA_ID },
+      })
+  
+      if (!cinema) {
+        throw new NotFoundException(`Cinema with ID ${movieShowtimeData.CINEMA_ID} not found`);
+      }
+    }
+  
     return this.prisma.movie_Showtime.update({
       where: { ID: id },
       data: movieShowtimeData,
       include: { Movie: true, Cinema: true },
     })
   }
+  
   
   async deleteMovieShowtime(id: number) {
     return this.prisma.movie_Showtime.delete({

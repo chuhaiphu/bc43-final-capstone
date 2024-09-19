@@ -46,7 +46,7 @@ export class AuthService {
 
   async login(user: User) {
     const payload = { email: user.EMAIL, sub: user.ID, role: user.ROLE }
-    const access_token = this.jwtService.sign(payload, { expiresIn: '5m' , secret: jwtConstants.access_token_secret})
+    const access_token = this.jwtService.sign(payload, { expiresIn: '30m' , secret: jwtConstants.access_token_secret})
     const refresh_token = this.jwtService.sign(payload, { expiresIn: '1w', secret: jwtConstants.refresh_token_secret})
 
     // Save refresh token to the database

@@ -2,8 +2,6 @@ import { Controller, Post, UseGuards, Get, Request } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { AuthGuard } from '@nestjs/passport'
 import { User } from '@prisma/client'
-import { Roles } from 'src/_guards/role.decorator'
-import { RolesGuard } from 'src/_guards/role.guard'
 import { ApiBody, ApiTags } from '@nestjs/swagger'
 import { LoginDto } from 'src/_dtos/login.dto'
 

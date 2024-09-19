@@ -24,7 +24,10 @@ export class MovieDto {
   @IsOptional()
   DESCRIPTION?: string
 
-  @ApiProperty()
+  @ApiProperty({ 
+    description: 'YYYY-MM-DDTHH:mm:ssZ',
+    example: '2024-01-01T23:59:00Z'
+  })
   @IsString()
   @IsOptional()
   @Transform(({ value }) => value ? new Date(value).toISOString() : undefined)

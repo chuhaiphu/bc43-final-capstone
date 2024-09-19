@@ -2,7 +2,6 @@ import { MailerService } from '@nestjs-modules/mailer'
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import * as bcrypt from 'bcrypt'
-import { jwtConstants } from 'src/_constants/jwt.constant'
 import { SignupDto } from 'src/_dtos/signup.dto'
 import { TicketDto } from 'src/_dtos/ticket.dto'
 import { UserDto } from 'src/_dtos/user.dto'
@@ -342,6 +341,16 @@ export class UserService {
   }
 
   async createTicket(ticketData: TicketDto) {
+    const movieShowtime = await this.prisma.movie_Showtime.findUnique({ where: { ID: ticketData.MOVIE_SHOWTIME_ID } });
+    if (!movieShowtime) {
+      throw new NotFoundException(`Movie Showtime with ID ${ticketData.MOVIE_SHOWTIME_ID} not found`);
+    }
+    
+    const seat = await this.prisma.seat.findUnique({ where: { ID: ticketData.SEAT_ID } });
+    if (!seat) {
+      throw new NotFoundException(`Seat with ID ${ticketData.SEAT_ID} not found`);
+    }
+
     return this.prisma.ticket.create({
       data: ticketData,
       include: {

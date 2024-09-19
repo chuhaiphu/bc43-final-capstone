@@ -1,13 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Request, UseGuards } from '@nestjs/common';
-import { UserService } from './user.service';
-import { SignupDto } from 'src/_dtos/signup.dto';
-import { UserDto } from 'src/_dtos/user.dto';
-import { AuthGuard } from '@nestjs/passport';
-import { TicketDto } from 'src/_dtos/ticket.dto';
-import { ApiTags } from '@nestjs/swagger';
-import { RolesGuard } from 'src/_guards/role.guard';
-import { Roles } from 'src/_guards/role.decorator';
-import { ResetPasswordDto } from 'src/_dtos/reset-password.dto';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Request, UseGuards } from '@nestjs/common'
+import { UserService } from './user.service'
+import { SignupDto } from 'src/_dtos/signup.dto'
+import { UserDto } from 'src/_dtos/user.dto'
+import { AuthGuard } from '@nestjs/passport'
+import { TicketDto } from 'src/_dtos/ticket.dto'
+import { ApiTags } from '@nestjs/swagger'
+import { RolesGuard } from 'src/_guards/role.guard'
+import { Roles } from 'src/_guards/role.decorator'
+import { ResetPasswordDto } from 'src/_dtos/reset-password.dto'
 
 @Controller('user')
 export class UserController {
@@ -78,6 +78,7 @@ export class UserController {
 
   @ApiTags('User Main')
   @UseGuards(AuthGuard('jwt-token-strat'))
+  @Roles(["ADMIN", "MANAGER", "USER"])
   @Delete('delete/:id')
   deleteUser(@Param('id') id: number, @Request() req: { user: { userId: any, email: any, role: any } }) {
     return this.userService.deleteUser(id, req.user.userId, req.user.role)

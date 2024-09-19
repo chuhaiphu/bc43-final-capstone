@@ -1,11 +1,11 @@
 import { NestFactory, Reflector } from '@nestjs/core'
-import { AppModule } from './app.module';
+import { AppModule } from './app.module'
 import { ValidationPipe } from '@nestjs/common'
-import { GlobalExceptionFilter } from './_filters /global-exception.filter';
-import { ResponseInterceptor } from './ _interceptors/response.interceptor';
-import { PrismaExceptionFilter } from './_filters /prisma-exception.filter';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { UserService } from './user/user.service';
+import { GlobalExceptionFilter } from './_filters /global-exception.filter'
+import { ResponseInterceptor } from './ _interceptors/response.interceptor'
+import { PrismaExceptionFilter } from './_filters /prisma-exception.filter'
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { UserService } from './user/user.service'
 
 
 async function bootstrap() {
