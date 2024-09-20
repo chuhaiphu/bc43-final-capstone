@@ -68,10 +68,14 @@ MAILER_NAME= your mailer name
 MAILER_APP_PASSWORD= your mailer app password
 ```
 
-### 4. Build and run
+### 4. Create the database schema
 Start your Docker image Postgres Database or run your local database.
 <br>
-Run the app
+Use any of your database client to connect to your database and import the ```movie-schema.sql``` file to create the database schema.
+<br>
+
+
+### 5. Run the app
 ```bash
 # development
 $ yarn start
